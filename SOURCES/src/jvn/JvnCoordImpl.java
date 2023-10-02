@@ -9,7 +9,13 @@
 
 package jvn;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
+import java.util.Map;
 import java.io.Serializable;
 
 
@@ -22,6 +28,11 @@ public class JvnCoordImpl
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	// cache works with id-object
+	private Map<Integer, JvnObject> cache;
+	
+	// Registry for communication
+	private Registry registry;
 
 /**
   * Default constructor
@@ -29,6 +40,9 @@ public class JvnCoordImpl
   **/
 	private JvnCoordImpl() throws Exception {
 		// to be completed
+		registry = LocateRegistry.getRegistry(2001);
+		registry.bind("coordinator", this);
+		cache = new HashMap<>();
 	}
 
   /**
@@ -38,8 +52,10 @@ public class JvnCoordImpl
   **/
   public int jvnGetObjectId()
   throws java.rmi.RemoteException,jvn.JvnException {
-    // to be completed 
-    return 0;
+    JvnObject jo = new JvnObjectImpl();
+    int id = 0; //TODO
+    cache.put(id, jo);
+    return id;
   }
   
   /**
@@ -53,6 +69,7 @@ public class JvnCoordImpl
   public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
   throws java.rmi.RemoteException,jvn.JvnException{
     // to be completed 
+	  // .bind(jon, jon)
   }
   
   /**
@@ -76,8 +93,8 @@ public class JvnCoordImpl
   **/
    public Serializable jvnLockRead(int joi, JvnRemoteServer js)
    throws java.rmi.RemoteException, JvnException{
-    // to be completed
-    return null;
+    // TODO to be completed
+    return this.cache.get(joi);
    }
 
   /**
@@ -90,7 +107,7 @@ public class JvnCoordImpl
    public Serializable jvnLockWrite(int joi, JvnRemoteServer js)
    throws java.rmi.RemoteException, JvnException{
     // to be completed
-    return null;
+	return this.cache.get(joi);
    }
 
 	/**
@@ -100,7 +117,13 @@ public class JvnCoordImpl
 	**/
     public void jvnTerminate(JvnRemoteServer js)
 	 throws java.rmi.RemoteException, JvnException {
-	 // to be completed
+    	// TODO ask if when coord terminates, all the servers should terminate
+    	try {
+			registry.unbind("coordinator");
+		} catch (RemoteException | NotBoundException e) {
+			// Couldn't unbind, so already unbound.
+			// Do nothing, objective already achieved.
+		}
     }
 }
 

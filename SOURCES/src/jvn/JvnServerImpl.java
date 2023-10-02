@@ -9,6 +9,9 @@
 
 package jvn;
 
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.io.*;
 
@@ -24,6 +27,7 @@ public class JvnServerImpl
 	private static final long serialVersionUID = 1L;
 	// A JVN server is managed as a singleton 
 	private static JvnServerImpl js = null;
+	private JvnRemoteCoord coordinator; 
 
   /**
   * Default constructor
@@ -31,7 +35,8 @@ public class JvnServerImpl
   **/
 	private JvnServerImpl() throws Exception {
 		super();
-		// to be completed
+		Registry reg = LocateRegistry.getRegistry(2001);
+		coordinator = (JvnRemoteCoord) reg.lookup("coordinator");
 	}
 	
   /**
@@ -63,11 +68,16 @@ public class JvnServerImpl
 	* creation of a JVN object
 	* @param o : the JVN object state
 	* @throws JvnException
+	 * @throws RemoteException 
 	**/
 	public  JvnObject jvnCreateObject(Serializable o)
-	throws jvn.JvnException { 
+	throws jvn.JvnException, RemoteException { 
+		
+		JvnObject jo = (JvnObject) o;
+		
+		coordinator.jvnRegisterObject("cool name", jo, this);
 		// to be completed 
-		return null; 
+		return jo; 
 	}
 	
 	/**
@@ -78,7 +88,7 @@ public class JvnServerImpl
 	**/
 	public  void jvnRegisterObject(String jon, JvnObject jo)
 	throws jvn.JvnException {
-		// to be completed 
+		this.coordinator
 	}
 	
 	/**
