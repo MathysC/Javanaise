@@ -21,7 +21,7 @@ import jvn.object.JvnObject;
 import jvn.object.JvnObjectImpl;
 import jvn.server.JvnRemoteServer;
 import jvn.utils.JvnException;
-
+import jvn.utils.LockState;
 import java.io.Serializable;
 
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
@@ -29,9 +29,14 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	// cache works with id-object
-	private Map<Integer, JvnObject> cache;
+	private static final String DEFAULT_NAME = "new object";
 
+	private int idGenerator;
+	// cache works with id-object
+	private Map<String, Integer> nameMap; // Name linked to ID
+	private Map<Integer, JvnObject> objectMap; // ID linked to object
+	private Map<Integer, LockState> lockMap; // ID linked to state.
+	
 	// Registry for communication
 	private Registry registry;
 
@@ -44,7 +49,19 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		// to be completed
 		registry = LocateRegistry.getRegistry(2001);
 		registry.bind("coordinator", this);
-		cache = new HashMap<>();
+		this.nameMap = new HashMap<>();
+		this.objectMap = new HashMap<>();
+		this.lockMap = new HashMap<>();
+		this.idGenerator = 0;
+	}
+	
+	/**
+	 * Incre
+	 * @return
+	 */
+	private int getNextID() {
+		// TODO ADD SEMAPHORE
+		return ++this.idGenerator;
 	}
 
 	/**
@@ -55,9 +72,12 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public int jvnGetObjectId()
 			throws java.rmi.RemoteException, jvn.utils.JvnException {
+		// Maybe add semaphore to this part.
 		JvnObject jo = new JvnObjectImpl();
-		int id = 0; // TODO
-		cache.put(id, jo);
+		int id = this.getNextID(); 						
+		this.nameMap.put(JvnCoordImpl.DEFAULT_NAME, id);
+		this.objectMap.put(id, jo);
+		this.lockMap.put(id, LockState.NL);
 		return id;
 	}
 
@@ -72,8 +92,14 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
 			throws java.rmi.RemoteException, jvn.utils.JvnException {
-		// to be completed
-		// .bind(jon, jon)
+
+		int id = this.jvnGetObjectId();
+		// Change the name by removing and adding again the id.
+		this.nameMap.remove(JvnCoordImpl.DEFAULT_NAME, id);
+		this.nameMap.put(jon, id);
+		this.objectMap.put(id, jo);
+
+
 	}
 
 	/**
@@ -86,7 +112,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js)
 			throws java.rmi.RemoteException, jvn.utils.JvnException {
 		// to be completed
-		return null;
+		return this.objectMap.get(this.nameMap.get(jon));
 	}
 
 	/**
@@ -100,7 +126,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public Serializable jvnLockRead(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
 		// TODO to be completed
-		return this.cache.get(joi);
+		return this.objectMap.get(joi);
 	}
 
 	/**
@@ -114,7 +140,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public Serializable jvnLockWrite(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
 		// to be completed
-		return this.cache.get(joi);
+		return this.objectMap.get(joi);
 	}
 
 	/**
