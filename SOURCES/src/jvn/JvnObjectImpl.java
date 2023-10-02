@@ -4,14 +4,19 @@ import java.io.Serializable;
 
 public class JvnObjectImpl implements JvnObject {
 
-    @Override
-    public void jvnLockRead() throws JvnException {}
+    JvnServerImpl ser;
 
     @Override
-    public void jvnLockWrite() throws JvnException {}
+    public void jvnLockRead() throws JvnException {
+    }
 
     @Override
-    public void jvnUnLock() throws JvnException {}
+    public void jvnLockWrite() throws JvnException {
+    }
+
+    @Override
+    public void jvnUnLock() throws JvnException {
+    }
 
     @Override
     public int jvnGetObjectId() throws JvnException {
@@ -24,7 +29,8 @@ public class JvnObjectImpl implements JvnObject {
     }
 
     @Override
-    public void jvnInvalidateReader() throws JvnException {}
+    public void jvnInvalidateReader() throws JvnException {
+    }
 
     @Override
     public Serializable jvnInvalidateWriter() throws JvnException {
@@ -35,5 +41,5 @@ public class JvnObjectImpl implements JvnObject {
     public Serializable jvnInvalidateWriterForReader() throws JvnException {
         return null;
     }
-    
+
 }
