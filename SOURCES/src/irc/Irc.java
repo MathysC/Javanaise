@@ -11,6 +11,10 @@ import java.awt.*;
 import java.awt.event.*;
 
 import jvn.*;
+import jvn.object.JvnObject;
+import jvn.server.JvnServerImpl;
+import jvn.utils.JvnException;
+
 import java.io.*;
 
 public class Irc {

@@ -1,6 +1,9 @@
-package jvn;
+package jvn.object;
 
 import java.io.Serializable;
+
+import jvn.server.JvnServerImpl;
+import jvn.utils.JvnException;
 
 public class JvnObjectImpl implements JvnObject {
 

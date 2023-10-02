@@ -8,10 +8,13 @@
  * Authors: 
  */
 
-package jvn;
+package jvn.server;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
+
+import jvn.object.JvnObject;
+import jvn.utils.JvnException;
 
 /**
  * Local interface of a JVN server (used by the applications).
@@ -30,7 +33,7 @@ public interface JvnLocalServer {
 	 * @throws RemoteException
 	 **/
 	public JvnObject jvnCreateObject(Serializable jos)
-			throws jvn.JvnException, RemoteException;
+			throws jvn.utils.JvnException, RemoteException;
 
 	/**
 	 * Associate a symbolic name with a JVN object
@@ -41,7 +44,7 @@ public interface JvnLocalServer {
 	 * @throws RemoteException
 	 **/
 	public void jvnRegisterObject(String jon, JvnObject jo)
-			throws jvn.JvnException, RemoteException;
+			throws jvn.utils.JvnException, RemoteException;
 
 	/**
 	 * Get the reference of a JVN object associated to a symbolic name
@@ -52,7 +55,7 @@ public interface JvnLocalServer {
 	 * @throws RemoteException
 	 **/
 	public JvnObject jvnLookupObject(String jon)
-			throws jvn.JvnException, RemoteException;
+			throws jvn.utils.JvnException, RemoteException;
 
 	/**
 	 * Get a Read lock on a JVN object
@@ -81,5 +84,5 @@ public interface JvnLocalServer {
 	 * @throws RemoteException
 	 **/
 	public void jvnTerminate()
-			throws jvn.JvnException, RemoteException;
+			throws jvn.utils.JvnException, RemoteException;
 }

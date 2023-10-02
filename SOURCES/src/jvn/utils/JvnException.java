@@ -5,16 +5,14 @@
  * Authors:  
  */
 
-package jvn;
+package jvn.utils;
 
 /**
  * Interface of a JVN Exception.
  */
 
 public class JvnException extends Exception {
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
 	String message;
 
@@ -25,6 +23,7 @@ public class JvnException extends Exception {
 		this.message = message;
 	}
 
+	@Override
 	public String getMessage() {
 		return message;
 	}

@@ -5,9 +5,11 @@
  * Authors: 
  */
 
-package jvn;
+package jvn.object;
 
 import java.io.*;
+
+import jvn.utils.JvnException;
 
 /**
  * Interface of a JVN object.
@@ -27,7 +29,7 @@ public interface JvnObject extends Serializable {
 	 * @throws JvnException
 	 **/
 	public void jvnLockRead()
-			throws jvn.JvnException;
+			throws jvn.utils.JvnException;
 
 	/**
 	 * Get a Write lock on the object
@@ -35,7 +37,7 @@ public interface JvnObject extends Serializable {
 	 * @throws JvnException
 	 **/
 	public void jvnLockWrite()
-			throws jvn.JvnException;
+			throws jvn.utils.JvnException;
 
 	/**
 	 * Unlock the object
@@ -43,7 +45,7 @@ public interface JvnObject extends Serializable {
 	 * @throws JvnException
 	 **/
 	public void jvnUnLock()
-			throws jvn.JvnException;
+			throws jvn.utils.JvnException;
 
 	/**
 	 * Get the object identification
@@ -51,7 +53,7 @@ public interface JvnObject extends Serializable {
 	 * @throws JvnException
 	 **/
 	public int jvnGetObjectId()
-			throws jvn.JvnException;
+			throws jvn.utils.JvnException;
 
 	/**
 	 * Get the shared object associated to this JvnObject
@@ -59,7 +61,7 @@ public interface JvnObject extends Serializable {
 	 * @throws JvnException
 	 **/
 	public Serializable jvnGetSharedObject()
-			throws jvn.JvnException;
+			throws jvn.utils.JvnException;
 
 	/**
 	 * Invalidate the Read lock of the JVN object
@@ -67,7 +69,7 @@ public interface JvnObject extends Serializable {
 	 * @throws JvnException
 	 **/
 	public void jvnInvalidateReader()
-			throws jvn.JvnException;
+			throws jvn.utils.JvnException;
 
 	/**
 	 * Invalidate the Write lock of the JVN object
@@ -76,7 +78,7 @@ public interface JvnObject extends Serializable {
 	 * @throws JvnException
 	 **/
 	public Serializable jvnInvalidateWriter()
-			throws jvn.JvnException;
+			throws jvn.utils.JvnException;
 
 	/**
 	 * Reduce the Write lock of the JVN object
@@ -85,5 +87,5 @@ public interface JvnObject extends Serializable {
 	 * @throws JvnException
 	 **/
 	public Serializable jvnInvalidateWriterForReader()
-			throws jvn.JvnException;
+			throws jvn.utils.JvnException;
 }

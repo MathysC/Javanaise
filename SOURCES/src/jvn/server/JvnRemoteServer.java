@@ -8,7 +8,7 @@
  * Authors: 
  */
 
-package jvn;
+package jvn.server;
 
 import java.rmi.*;
 import java.io.*;
@@ -26,7 +26,7 @@ public interface JvnRemoteServer extends Remote {
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
 	public void jvnInvalidateReader(int joi)
-			throws java.rmi.RemoteException, jvn.JvnException;
+			throws java.rmi.RemoteException, jvn.utils.JvnException;
 
 	/**
 	 * Invalidate the Write lock of a JVN object
@@ -36,7 +36,7 @@ public interface JvnRemoteServer extends Remote {
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
 	public Serializable jvnInvalidateWriter(int joi)
-			throws java.rmi.RemoteException, jvn.JvnException;
+			throws java.rmi.RemoteException, jvn.utils.JvnException;
 
 	/**
 	 * Reduce the Write lock of a JVN object
@@ -46,6 +46,6 @@ public interface JvnRemoteServer extends Remote {
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
 	public Serializable jvnInvalidateWriterForReader(int joi)
-			throws java.rmi.RemoteException, jvn.JvnException;
+			throws java.rmi.RemoteException, jvn.utils.JvnException;
 
 }
