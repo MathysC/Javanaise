@@ -14,8 +14,10 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
+import jvn.coord.JvnCoordImpl;
 import jvn.coord.JvnRemoteCoord;
 import jvn.object.JvnObject;
+import jvn.object.JvnObjectImpl;
 import jvn.utils.JvnException;
 
 import java.io.*;
@@ -83,9 +85,10 @@ public class JvnServerImpl
 	public JvnObject jvnCreateObject(Serializable o)
 			throws jvn.utils.JvnException, RemoteException {
 
-		JvnObject jo = (JvnObject) o;
+		JvnObjectImpl jo = new JvnObjectImpl(this.coordinator.jvnGetObjectId());
+		jo.jvnSetSharedObject(o);
 
-		coordinator.jvnRegisterObject("cool name", jo, this);
+		coordinator.jvnRegisterObject(JvnCoordImpl.DEFAULT_JVN_OVJECT_NAME, jo, this);
 		// to be completed
 		return jo;
 	}
