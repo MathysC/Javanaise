@@ -33,6 +33,8 @@ public class JvnServerImpl
 	// A JVN server is managed as a singleton
 	private static JvnServerImpl js = null;
 	private JvnRemoteCoord coordinator;
+	
+	private int serverID = -1; 
 
 	/**
 	 * Default constructor
@@ -41,9 +43,11 @@ public class JvnServerImpl
 	 **/
 	private JvnServerImpl() throws Exception {
 		super();
+		System.setProperty("java.rmi.server.hostname","127.0.1.1");
 		Registry reg = LocateRegistry.getRegistry(2001);
 		coordinator = (JvnRemoteCoord) reg.lookup("coordinator");
-		reg.bind("srv_" + JvnServerImpl.serialVersionUID, this);
+		this.serverID = coordinator.jvnGetNextServerId();
+		reg.bind("srv_" + this.serverID, this);
 	}
 
 	/**
@@ -57,6 +61,7 @@ public class JvnServerImpl
 			try {
 				js = new JvnServerImpl();
 			} catch (Exception e) {
+				e.printStackTrace();
 				return null;
 			}
 		}

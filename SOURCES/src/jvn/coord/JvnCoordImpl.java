@@ -33,6 +33,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public static final String DEFAULT_JVN_OVJECT_NAME = "new object";
 
 	private int idGenerator;
+	private int serverIdGenerator;
+	
 	// cache works with id-object
 	private Map<String, Integer> nameMap; // Name linked to ID
 	private Map<Integer, JvnObject> objectMap; // ID linked to object
@@ -58,6 +60,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			this.objectMap = new HashMap<>();
 			this.lockMap = new HashMap<>();
 			this.idGenerator = 0;
+			this.serverIdGenerator = 0;
 			this.registry.bind(COORD_NAME, this);
 		}
 	}
@@ -90,6 +93,15 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	private int getNextID() {
 		// TODO ADD SEMAPHORE
 		return ++this.idGenerator;
+	}
+	
+	/**
+	 * Give a server his id. Simple incrementation.
+	 * TODO : improve this to keep track of the servers + Add semaphore
+	 * @return a new id
+	 */
+	public int jvnGetNextServerId() {
+		return ++this.serverIdGenerator;
 	}
 
 	/**
