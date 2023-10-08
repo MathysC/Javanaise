@@ -76,3 +76,6 @@ public interface Hello extends Remote{
 	String helloWorld() throws RemoteException;
 }
 ```
+
+### Dev Notes
+When we want to send a Sentence (or serializable used by user, type doesn't matter) we send back a sharedObject (obj.jvnGetSharedObject() ) else, if we want to return a JvnObject, we return it. 

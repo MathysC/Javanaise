@@ -5,7 +5,7 @@
  * An application uses the Javanaise service through the local interface provided by the Jvn server 
  * Contact: 
  *
- * Authors: 
+ * Authors: MathysC MatveiP
  */
 
 package jvn.server;
@@ -25,15 +25,14 @@ import jvn.utils.JvnException;
 public interface JvnLocalServer {
 
 	/**
-	 * create of a JVN object
+	 * Create of a JVN object.
 	 * 
 	 * @param jos : the JVN object state
 	 * @return the JVN object
 	 * @throws JvnException
 	 * @throws RemoteException
 	 **/
-	public JvnObject jvnCreateObject(Serializable jos)
-			throws jvn.utils.JvnException, RemoteException;
+	public JvnObject jvnCreateObject(Serializable jos) throws JvnException, RemoteException;
 
 	/**
 	 * Associate a symbolic name with a JVN object
@@ -43,8 +42,7 @@ public interface JvnLocalServer {
 	 * @throws JvnException
 	 * @throws RemoteException
 	 **/
-	public void jvnRegisterObject(String jon, JvnObject jo)
-			throws jvn.utils.JvnException, RemoteException;
+	public void jvnRegisterObject(String jon, JvnObject jo) throws JvnException, RemoteException;
 
 	/**
 	 * Get the reference of a JVN object associated to a symbolic name
@@ -54,8 +52,7 @@ public interface JvnLocalServer {
 	 * @throws JvnException
 	 * @throws RemoteException
 	 **/
-	public JvnObject jvnLookupObject(String jon)
-			throws jvn.utils.JvnException, RemoteException;
+	public JvnObject jvnLookupObject(String jon) throws JvnException, RemoteException;
 
 	/**
 	 * Get a Read lock on a JVN object
@@ -64,8 +61,7 @@ public interface JvnLocalServer {
 	 * @return the current JVN object state
 	 * @throws JvnException
 	 **/
-	public Serializable jvnLockRead(int joi)
-			throws JvnException;
+	public Serializable jvnLockRead(int joi) throws JvnException;
 
 	/**
 	 * Get a Write lock on a JVN object
@@ -74,8 +70,7 @@ public interface JvnLocalServer {
 	 * @return the current JVN object state
 	 * @throws JvnException
 	 **/
-	public Serializable jvnLockWrite(int joi)
-			throws JvnException;
+	public Serializable jvnLockWrite(int joi) throws JvnException;
 
 	/**
 	 * The JVN service is not used anymore by the application
@@ -83,6 +78,5 @@ public interface JvnLocalServer {
 	 * @throws JvnException
 	 * @throws RemoteException
 	 **/
-	public void jvnTerminate()
-			throws jvn.utils.JvnException, RemoteException;
+	public void jvnTerminate() throws JvnException, RemoteException;
 }
