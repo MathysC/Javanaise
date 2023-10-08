@@ -2,24 +2,22 @@
  * Irc class : simple implementation of a chat using JAVANAISE 
  * Contact: 
  *
- * Authors: 
+ * Authors: MathysC MatveiP
  */
 
 package irc;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.rmi.RemoteException;
 
-import jvn.*;
 import jvn.object.JvnObject;
 import jvn.server.JvnServerImpl;
 import jvn.utils.JvnException;
 
-import java.io.*;
-
 public class Irc {
-	public TextArea text;
-	public TextField data;
+	protected TextArea text;
+	protected TextField data;
 	Frame frame;
 	JvnObject sentence;
 
@@ -27,7 +25,7 @@ public class Irc {
 	 * main method
 	 * create a JVN object nammed IRC for representing the Chat application
 	 **/
-	public static void main(String argv[]) {
+	public static void main(String[] argv) {
 		try {
 
 			// initialize JVN
@@ -38,7 +36,7 @@ public class Irc {
 			JvnObject jo = js.jvnLookupObject("IRC");
 
 			if (jo == null) {
-				jo = js.jvnCreateObject((Serializable) new Sentence());
+				jo = js.jvnCreateObject(new Sentence());
 				// after creation, I have a write lock on the object
 				jo.jvnUnLock();
 				js.jvnRegisterObject("IRC", jo);
@@ -66,25 +64,37 @@ public class Irc {
 		frame.add(text);
 		data = new TextField(40);
 		frame.add(data);
-		Button read_button = new Button("read");
-		read_button.addActionListener(new readListener(this));
-		frame.add(read_button);
-		Button write_button = new Button("write");
-		write_button.addActionListener(new writeListener(this));
-		frame.add(write_button);
+		Button readButton = new Button("read");
+		readButton.addActionListener(new ReadListener(this));
+		frame.add(readButton);
+		Button writeButton = new Button("write");
+		writeButton.addActionListener(new WriteListener(this));
+		frame.add(writeButton);
 		frame.setSize(545, 201);
 		text.setBackground(Color.black);
 		frame.setVisible(true);
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					JvnServerImpl.jvnGetServer().jvnTerminate();
+				} catch (RemoteException | JvnException e1) {
+					e1.printStackTrace();
+				} finally {
+					e.getWindow().dispose();
+				}
+			}
+		});
 	}
 }
 
 /**
  * Internal class to manage user events (read) on the CHAT application
  **/
-class readListener implements ActionListener {
+class ReadListener implements ActionListener {
 	Irc irc;
 
-	public readListener(Irc i) {
+	public ReadListener(Irc i) {
 		irc = i;
 	}
 
@@ -114,10 +124,10 @@ class readListener implements ActionListener {
 /**
  * Internal class to manage user events (write) on the CHAT application
  **/
-class writeListener implements ActionListener {
+class WriteListener implements ActionListener {
 	Irc irc;
 
-	public writeListener(Irc i) {
+	public WriteListener(Irc i) {
 		irc = i;
 	}
 

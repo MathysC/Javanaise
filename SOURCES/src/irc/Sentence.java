@@ -3,26 +3,40 @@
  * during a chat application
  * Contact: 
  *
- * Authors: 
+ * Authors: MathysC MatveiP
  */
 
 package irc;
 
-public class Sentence implements java.io.Serializable {
+import java.io.Serializable;
+
+/**
+ * Sentence is a Serializable object that will be used as a shareable object by Javanaise.
+ */
+public class Sentence implements Serializable {
+	
 	/**
-	 * 
+	 * Serialization.
 	 */
 	private static final long serialVersionUID = 1L;
 	String data;
 
 	public Sentence() {
-		data = new String("");
+		data = "";
 	}
 
+	/**
+	 * Setter of data.
+	 * @param text The new value of data.
+	 */
 	public void write(String text) {
 		data = text;
 	}
 
+	/**
+	 * Getter of data.
+	 * @return the current value of data.
+	 */
 	public String read() {
 		return data;
 	}

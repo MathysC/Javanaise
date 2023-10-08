@@ -4,7 +4,7 @@
  * This interface defines the remote interface provided by the Javanaise coordinator
  * Contact: 
  *
- * Authors: 
+ * Authors: MathysC MatveiP
  */
 
 package jvn.coord;
@@ -27,10 +27,10 @@ public interface JvnRemoteCoord extends Remote {
 	 * Allocate a NEW JVN object id (usually allocated to a
 	 * newly created JVN object)
 	 * 
-	 * @throws java.rmi.RemoteException,JvnException
+	 * @throws RemoteException
+	 * @throws JvnException
 	 **/
-	public int jvnGetObjectId()
-			throws java.rmi.RemoteException, jvn.utils.JvnException;
+	public int jvnGetObjectId() throws RemoteException, JvnException;
 
 	/**
 	 * Associate a symbolic name with a JVN object
@@ -39,31 +39,31 @@ public interface JvnRemoteCoord extends Remote {
 	 * @param jo  : the JVN object
 	 * @param joi : the JVN object identification
 	 * @param js  : the remote reference of the JVNServer
-	 * @throws java.rmi.RemoteException,JvnException
+	 * @throws RemoteException
+	 * @throws JvnException
 	 **/
-	public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
-			throws java.rmi.RemoteException, jvn.utils.JvnException;
+	public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js) throws RemoteException, JvnException;
 
 	/**
 	 * Get the reference of a JVN object managed by a given JVN server
 	 * 
 	 * @param jon : the JVN object name
 	 * @param js  : the remote reference of the JVNServer
-	 * @throws java.rmi.RemoteException,JvnException
+	 * @throws RemoteException
+	 * @throws JvnException
 	 **/
-	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js)
-			throws java.rmi.RemoteException, jvn.utils.JvnException;
+	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws RemoteException, JvnException;
 
 	/**
 	 * Get a Read lock on a JVN object managed by a given JVN server
 	 * 
-	 * @param joi : the JVN object identification
-	 * @param js  : the remote reference of the server
+	 * @param joi the JVN object identification
+	 * @param js  the remote reference of the server
 	 * @return the current JVN object state
-	 * @throws java.rmi.RemoteException, JvnException
+	 * @throws RemoteException
+	 * @throws JvnException
 	 **/
-	public Serializable jvnLockRead(int joi, JvnRemoteServer js)
-			throws java.rmi.RemoteException, JvnException;
+	public Serializable jvnLockRead(int joi, JvnRemoteServer js) throws RemoteException, JvnException;
 
 	/**
 	 * Get a Write lock on a JVN object managed by a given JVN server
@@ -71,27 +71,26 @@ public interface JvnRemoteCoord extends Remote {
 	 * @param joi : the JVN object identification
 	 * @param js  : the remote reference of the server
 	 * @return the current JVN object state
-	 * @throws java.rmi.RemoteException, JvnException
+	 * @throws RemoteException
+	 * @throws JvnException
 	 **/
-	public Serializable jvnLockWrite(int joi, JvnRemoteServer js)
-			throws java.rmi.RemoteException, JvnException;
+	public Serializable jvnLockWrite(int joi, JvnRemoteServer js) throws RemoteException, JvnException;
 
 	/**
 	 * A JVN server terminates
 	 * 
 	 * @param js : the remote reference of the server
-	 * @throws java.rmi.RemoteException, JvnException
+	 * @throws RemoteException
+	 * @throws JvnException
 	 **/
-	public void jvnTerminate(JvnRemoteServer js)
-			throws java.rmi.RemoteException, JvnException;
-	
+	public void jvnTerminate(JvnRemoteServer js) throws RemoteException, JvnException;
+
 	/**
-	 * Get the next server id when a new server is created
-	 * @return int of the new server id
-	 * @throws java.rmi.RemoteException
+	 * Write a log message in the Console
+	 * 
+	 * @param m The message to log
+	 * @throws RemoteException
 	 * @throws JvnException
 	 */
-	public int jvnGetNextServerId()
-			throws java.rmi.RemoteException, JvnException;
-
+	public void log(String m) throws RemoteException, JvnException;
 }

@@ -2,7 +2,7 @@
  * JAVANAISE API
  * Contact: 
  *
- * Authors:  
+ * Authors: MathysC MatveiP
  */
 
 package jvn.utils;
@@ -10,21 +10,16 @@ package jvn.utils;
 /**
  * Interface of a JVN Exception.
  */
-
 public class JvnException extends Exception {
 	
 	private static final long serialVersionUID = 1L;
-	String message;
 
 	public JvnException() {
+		super();
 	}
 
-	public JvnException(String message) {
-		this.message = message;
+	public JvnException(String m) {
+		super(m);
 	}
 
-	@Override
-	public String getMessage() {
-		return message;
-	}
 }
