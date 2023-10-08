@@ -93,5 +93,7 @@ public interface JvnRemoteCoord extends Remote {
 	 */
 	public int jvnGetNextServerId()
 			throws java.rmi.RemoteException, JvnException;
+	
+	public void log(String s) throws java.rmi.RemoteException, JvnException;
 
 }

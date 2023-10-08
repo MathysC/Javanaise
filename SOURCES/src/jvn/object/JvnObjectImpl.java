@@ -1,24 +1,47 @@
 package jvn.object;
 
 import java.io.Serializable;
+import java.rmi.Remote;
 
+import jvn.server.JvnLocalServer;
 import jvn.server.JvnServerImpl;
 import jvn.utils.JvnException;
+import jvn.utils.LockState;
 
-public class JvnObjectImpl implements JvnObject {
+public class JvnObjectImpl implements Remote, JvnObject {
 
     private int id;
     private Serializable sharedObject;
+    // needs to be transient else it breaks everything. 
+    // Because server is not really a server, it's some sort of stub
+    // so when this is serialized, it converts the stub to something else
+    // and tries to convert back the something else to a jvnlocaleserver
+    // but it never was that, it was a strange stub, so it bugs.
+    private transient JvnLocalServer server;
+    private LockState state;
 
-    public JvnObjectImpl(int id) {
+    public JvnObjectImpl(Serializable shared,int id, JvnLocalServer server) {
         this.id = id;
+        this.sharedObject = shared;
+        this.server = server;
+        this.state = LockState.NL;
+    }
+    
+    public JvnObjectImpl(int id, Serializable shared) {
+        this.id = id;
+        this.sharedObject = shared;
+        this.server = server;
     }
     @Override
     public void jvnLockRead() throws JvnException {
+    	this.server.jvnLockRead(id);
+    	this.state = LockState.R;
     }
 
     @Override
     public void jvnLockWrite() throws JvnException {
+    	this.server.jvnLockWrite(id);
+    	this.state = LockState.W;
     }
 
     @Override
@@ -37,6 +60,10 @@ public class JvnObjectImpl implements JvnObject {
 
     public void jvnSetSharedObject(Serializable obj) throws JvnException {
         this.sharedObject = obj;
+    }
+    
+    public void jvnSetServer(JvnLocalServer server) {
+    	this.server = server;
     }
 
     @Override

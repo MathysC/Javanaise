@@ -114,10 +114,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			throws java.rmi.RemoteException, jvn.utils.JvnException {
 		// Maybe add semaphore to this part.
 		int id = this.getNextID(); 						
-		JvnObject jo = new JvnObjectImpl(id);
-		this.nameMap.put(JvnCoordImpl.DEFAULT_JVN_OVJECT_NAME, id);
-		this.objectMap.put(id, jo);
-		this.lockMap.put(id, LockState.NL);
 		return id;
 	}
 
@@ -132,12 +128,10 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
 			throws java.rmi.RemoteException, jvn.utils.JvnException {
-
 		int id = jo.jvnGetObjectId();
-		// Change the name by removing and adding again the id.
-		this.nameMap.remove(JvnCoordImpl.DEFAULT_JVN_OVJECT_NAME, id);
 		this.nameMap.put(jon, id);
 		this.objectMap.put(id, jo);
+		this.lockMap.put(id, LockState.NL);
 
 
 	}
@@ -198,5 +192,9 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			// Couldn't unbind, so already unbound.
 			// Do nothing, objective already achieved.
 		}
+	}
+	
+	public void log(String s) {
+		System.out.println("[LOG] - "+s);
 	}
 }

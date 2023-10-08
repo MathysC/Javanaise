@@ -35,6 +35,8 @@ public class JvnServerImpl
 	private JvnRemoteCoord coordinator;
 	
 	private int serverID = -1; 
+	
+	private Registry reg;
 
 	/**
 	 * Default constructor
@@ -44,9 +46,10 @@ public class JvnServerImpl
 	private JvnServerImpl() throws Exception {
 		super();
 		System.setProperty("java.rmi.server.hostname","127.0.1.1");
-		Registry reg = LocateRegistry.getRegistry(2001);
+		this.reg = LocateRegistry.getRegistry(2001);
 		coordinator = (JvnRemoteCoord) reg.lookup("coordinator");
 		this.serverID = coordinator.jvnGetNextServerId();
+		this.coordinator.log(this.serverID+" Registered");
 		reg.bind("srv_" + this.serverID, this);
 	}
 
@@ -89,12 +92,16 @@ public class JvnServerImpl
 	 **/
 	public JvnObject jvnCreateObject(Serializable o)
 			throws jvn.utils.JvnException, RemoteException {
+		int id = 0; 
+		try {
+			id = this.coordinator.jvnGetObjectId();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		JvnObject jo = new JvnObjectImpl(o,id, this);	
 
-		JvnObjectImpl jo = new JvnObjectImpl(this.coordinator.jvnGetObjectId());
-		jo.jvnSetSharedObject(o);
-
-		coordinator.jvnRegisterObject(JvnCoordImpl.DEFAULT_JVN_OVJECT_NAME, jo, this);
-		// to be completed
 		return jo;
 	}
 
@@ -107,7 +114,12 @@ public class JvnServerImpl
 	 **/
 	public void jvnRegisterObject(String jon, JvnObject jo)
 			throws jvn.utils.JvnException, RemoteException {
-		this.coordinator.jvnRegisterObject(jon, jo, this);
+		try {
+			this.coordinator.jvnRegisterObject(jon, jo, this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	/**
@@ -119,7 +131,12 @@ public class JvnServerImpl
 	 **/
 	public JvnObject jvnLookupObject(String jon)
 			throws jvn.utils.JvnException, RemoteException {
-		return this.coordinator.jvnLookupObject(jon, this);
+		JvnObject object = this.coordinator.jvnLookupObject(jon, this);
+		if (object != null) {
+			// change server to be current instead of creator
+			object.jvnSetServer(this);
+		}
+		return object;
 	}
 
 	/**
