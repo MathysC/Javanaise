@@ -9,6 +9,7 @@
 
 package jvn.coord;
 
+import java.rmi.AccessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -21,7 +22,7 @@ import jvn.object.JvnObject;
 import jvn.object.JvnObjectImpl;
 import jvn.server.JvnRemoteServer;
 import jvn.utils.JvnException;
-
+import jvn.utils.LockState;
 import java.io.Serializable;
 
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
@@ -29,11 +30,20 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	// cache works with id-object
-	private Map<Integer, JvnObject> cache;
+	public static final String DEFAULT_JVN_OVJECT_NAME = "new object";
 
+	private int idGenerator;
+	private int serverIdGenerator;
+	
+	// cache works with id-object
+	private Map<String, Integer> nameMap; // Name linked to ID
+	private Map<Integer, JvnObject> objectMap; // ID linked to object
+	private Map<Integer, LockState> lockMap; // ID linked to state.
+	
 	// Registry for communication
 	private Registry registry;
+	private static final String COORD_NAME = "coordinator";
+	private static final int COORD_PORT = 2001;
 
 	/**
 	 * Default constructor
@@ -42,9 +52,56 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 */
 	private JvnCoordImpl() throws Exception {
 		// to be completed
-		registry = LocateRegistry.getRegistry(2001);
-		registry.bind("coordinator", this);
-		cache = new HashMap<>();
+		try {
+			this.registry = LocateRegistry.createRegistry(COORD_PORT);
+			JvnCoordImpl coord = (JvnCoordImpl) this.registry.lookup(COORD_NAME);
+		} catch (NotBoundException e) {
+			this.nameMap = new HashMap<>();
+			this.objectMap = new HashMap<>();
+			this.lockMap = new HashMap<>();
+			this.idGenerator = 0;
+			this.serverIdGenerator = 0;
+			this.registry.bind(COORD_NAME, this);
+		}
+	}
+	
+	public static void main(String[] args) {
+		try {
+			// Créer le serveur
+			System.setProperty("java.rmi.server.hostname","127.0.1.1");
+			JvnCoordImpl coord = new JvnCoordImpl();
+			if (coord.isReady()) {
+				System.out.println("Server ready");
+			} else {
+				throw new JvnException("Coordinator not ready");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public boolean isReady() throws RemoteException, NotBoundException {
+		return this.registry.lookup(COORD_NAME) != null;
+	}
+	
+	/**
+	 * Incre
+	 * @return
+	 */
+	private int getNextID() {
+		// TODO ADD SEMAPHORE
+		return ++this.idGenerator;
+	}
+	
+	/**
+	 * Give a server his id. Simple incrementation.
+	 * TODO : improve this to keep track of the servers + Add semaphore
+	 * @return a new id
+	 */
+	public int jvnGetNextServerId() {
+		return ++this.serverIdGenerator;
 	}
 
 	/**
@@ -55,9 +112,12 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public int jvnGetObjectId()
 			throws java.rmi.RemoteException, jvn.utils.JvnException {
-		JvnObject jo = new JvnObjectImpl();
-		int id = 0; // TODO
-		cache.put(id, jo);
+		// Maybe add semaphore to this part.
+		int id = this.getNextID(); 						
+		JvnObject jo = new JvnObjectImpl(id);
+		this.nameMap.put(JvnCoordImpl.DEFAULT_JVN_OVJECT_NAME, id);
+		this.objectMap.put(id, jo);
+		this.lockMap.put(id, LockState.NL);
 		return id;
 	}
 
@@ -72,8 +132,14 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js)
 			throws java.rmi.RemoteException, jvn.utils.JvnException {
-		// to be completed
-		// .bind(jon, jon)
+
+		int id = jo.jvnGetObjectId();
+		// Change the name by removing and adding again the id.
+		this.nameMap.remove(JvnCoordImpl.DEFAULT_JVN_OVJECT_NAME, id);
+		this.nameMap.put(jon, id);
+		this.objectMap.put(id, jo);
+
+
 	}
 
 	/**
@@ -86,7 +152,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js)
 			throws java.rmi.RemoteException, jvn.utils.JvnException {
 		// to be completed
-		return null;
+		return this.objectMap.get(this.nameMap.get(jon));
 	}
 
 	/**
@@ -100,7 +166,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public Serializable jvnLockRead(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
 		// TODO to be completed
-		return this.cache.get(joi);
+		return this.objectMap.get(joi);
 	}
 
 	/**
@@ -114,7 +180,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public Serializable jvnLockWrite(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
 		// to be completed
-		return this.cache.get(joi);
+		return this.objectMap.get(joi);
 	}
 
 	/**

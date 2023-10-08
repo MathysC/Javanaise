@@ -7,8 +7,12 @@ import jvn.utils.JvnException;
 
 public class JvnObjectImpl implements JvnObject {
 
-    JvnServerImpl ser;
+    private int id;
+    private Serializable sharedObject;
 
+    public JvnObjectImpl(int id) {
+        this.id = id;
+    }
     @Override
     public void jvnLockRead() throws JvnException {
     }
@@ -23,12 +27,16 @@ public class JvnObjectImpl implements JvnObject {
 
     @Override
     public int jvnGetObjectId() throws JvnException {
-        return -1;
+        return this.id;
     }
 
     @Override
     public Serializable jvnGetSharedObject() throws JvnException {
-        return null;
+        return this.sharedObject;
+    }
+
+    public void jvnSetSharedObject(Serializable obj) throws JvnException {
+        this.sharedObject = obj;
     }
 
     @Override

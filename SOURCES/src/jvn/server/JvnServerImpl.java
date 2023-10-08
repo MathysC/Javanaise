@@ -14,8 +14,10 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
+import jvn.coord.JvnCoordImpl;
 import jvn.coord.JvnRemoteCoord;
 import jvn.object.JvnObject;
+import jvn.object.JvnObjectImpl;
 import jvn.utils.JvnException;
 
 import java.io.*;
@@ -31,6 +33,8 @@ public class JvnServerImpl
 	// A JVN server is managed as a singleton
 	private static JvnServerImpl js = null;
 	private JvnRemoteCoord coordinator;
+	
+	private int serverID = -1; 
 
 	/**
 	 * Default constructor
@@ -39,9 +43,11 @@ public class JvnServerImpl
 	 **/
 	private JvnServerImpl() throws Exception {
 		super();
+		System.setProperty("java.rmi.server.hostname","127.0.1.1");
 		Registry reg = LocateRegistry.getRegistry(2001);
 		coordinator = (JvnRemoteCoord) reg.lookup("coordinator");
-		reg.bind("srv_" + JvnServerImpl.serialVersionUID, this);
+		this.serverID = coordinator.jvnGetNextServerId();
+		reg.bind("srv_" + this.serverID, this);
 	}
 
 	/**
@@ -55,6 +61,7 @@ public class JvnServerImpl
 			try {
 				js = new JvnServerImpl();
 			} catch (Exception e) {
+				e.printStackTrace();
 				return null;
 			}
 		}
@@ -83,9 +90,10 @@ public class JvnServerImpl
 	public JvnObject jvnCreateObject(Serializable o)
 			throws jvn.utils.JvnException, RemoteException {
 
-		JvnObject jo = (JvnObject) o;
+		JvnObjectImpl jo = new JvnObjectImpl(this.coordinator.jvnGetObjectId());
+		jo.jvnSetSharedObject(o);
 
-		coordinator.jvnRegisterObject("cool name", jo, this);
+		coordinator.jvnRegisterObject(JvnCoordImpl.DEFAULT_JVN_OVJECT_NAME, jo, this);
 		// to be completed
 		return jo;
 	}

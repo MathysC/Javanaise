@@ -84,5 +84,14 @@ public interface JvnRemoteCoord extends Remote {
 	 **/
 	public void jvnTerminate(JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException;
+	
+	/**
+	 * Get the next server id when a new server is created
+	 * @return int of the new server id
+	 * @throws java.rmi.RemoteException
+	 * @throws JvnException
+	 */
+	public int jvnGetNextServerId()
+			throws java.rmi.RemoteException, JvnException;
 
 }

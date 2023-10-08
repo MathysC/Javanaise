@@ -26,3 +26,4 @@ replay_pid*
 # Eclipse files
 SOURCES/bin/
 SOURCES/.project
+/bin/
