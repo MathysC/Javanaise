@@ -1,0 +1,93 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Application",
+			"dependsOn": [
+				"Run Coord",
+				"Run IRC",
+				"Run IRC2",
+			],
+			"group":{
+                "kind": "none",
+                "isDefault": true
+            },
+			"dependsOrder": "parallel",
+			"problemMatcher": [],
+		},
+		{
+			"label": "Run Coord",
+			"type": "shell",
+			"command": "java",
+			"args": [
+				"-cp",
+				"SOURCES/bin",
+				"jvn.coord.JvnCoordImpl",
+			],
+			"group": "none",
+			"problemMatcher": [],
+			"presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared",
+                "group": "app",
+				"clear": true,
+				"close": true,
+            }
+		},
+		{
+			"label": "Run IRC",
+			"type": "shell",
+			"command" : "java",
+			"args": [
+				"-cp",
+				"SOURCES/bin",
+				"irc.Irc",
+			],
+			"group": "none",
+			"presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared",
+                "group": "app",
+				"clear": true,
+				"close": true,
+            },
+			"problemMatcher": [],
+		},
+		{
+			"label": "Run IRC2",
+			"type": "shell",
+			"command" : "java",
+			"args": [
+				"-cp",
+				"SOURCES/bin",
+				"irc.Irc",
+			],
+			"group": "none",
+			"presentation": {
+                "echo": true,
+                "reveal": "always",
+                "panel": "shared",
+                "group": "app",
+				"clear": true,
+				"close": true,
+            },
+			"problemMatcher": [],
+		},
+		{
+			"label": "Run Application:debug",
+			"dependsOn": [
+				"Run Coord:debug",
+				"Run IRC:debug",
+				"Run IRC2:debug",
+			],
+			"group":{
+                "kind": "none",
+                "isDefault": true
+            },
+			"dependsOrder": "parallel",
+			"problemMatcher": [],
+		}
+	]
+}
