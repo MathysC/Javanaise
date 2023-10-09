@@ -29,24 +29,43 @@ public class JvnObjectImpl implements Remote, JvnObject {
     
     @Override
     public void jvnLockRead() throws JvnException {
-    	if (this.state != LockState.R) {
-    		this.jvnSetSharedObject(this.server.jvnLockRead(id));	
-        	this.state = LockState.R;
+    	switch (this.state) {
+    		case W:
+    			this.state = LockState.R;
+    			break;
+    		default:
+    			Serializable sr = this.server.jvnLockRead(id);
+        		this.jvnSetSharedObject(sr);
+            	this.state = LockState.R;
+            	break;
     	}
     	
     }
 
     @Override
     public void jvnLockWrite() throws JvnException {
-    	if (this.state != LockState.W) {
-    		this.jvnSetSharedObject(this.server.jvnLockWrite(id));
-        	this.state = LockState.W;
+    	switch (this.state) {
+    		case W:
+    			break;
+    		case R:
+    			this.state = LockState.W;
+    			break;
+    		default:
+    			this.jvnSetSharedObject(this.server.jvnLockWrite(id));
+            	this.state = LockState.W;
     	}
     }
 
     @Override
     public void jvnUnLock() throws JvnException {
-    	
+    	switch (this.state) {
+    	case R:
+    		this.state = LockState.RC;
+    		break;
+    	case W:
+    		this.state = LockState.WC;
+    		break;
+    	}
     }
 
     @Override
@@ -69,11 +88,38 @@ public class JvnObjectImpl implements Remote, JvnObject {
 
     @Override
     public void jvnInvalidateReader() throws JvnException {
+    	switch (this.state) {
+	    	case RC:		
+	    		break;
+	    	case R:
+	    		// wait for RC
+	    		break;
+			default:
+				// Anything else shouldn't be possible
+				throw new JvnException("Error : Impossible state in ObjectImpl");
+    	}
+    	this.state = LockState.NL;
+    	// RC -> NL
+    	// R -> wait (RC)
+    	// W -> wait (WC)
+    	// WC -> NL 
+    	// WRC -> wait (RC)
     }
 
     @Override
     public Serializable jvnInvalidateWriter() throws JvnException {
-        return null;
+    	switch (this.state) {
+    	case WC:
+    		break;
+    	case W:
+    		// wait for WC
+    		break;
+		default:
+			// Anything else shouldn't be possible
+			throw new JvnException("Error : Impossible state in ObjectImpl");
+    	}
+    	this.state = LockState.NL;
+    	return this.jvnGetSharedObject(); // return the object to be able to update the value
     }
 
     @Override

@@ -39,6 +39,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	private Map<String, Integer> nameMap; // Name linked to ID
 	private Map<Integer, JvnObject> objectMap; // ID linked to object
 	private Map<Integer, LockState> lockMap; // ID linked to state.
+	private Map<Integer, JvnRemoteServer> lockedServerOwner ; // ID linked to state.
 	
 	// Registry for communication
 	private Registry registry;
@@ -59,6 +60,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			this.nameMap = new HashMap<>();
 			this.objectMap = new HashMap<>();
 			this.lockMap = new HashMap<>();
+			this.lockedServerOwner = new HashMap<>();
 			this.idGenerator = 0;
 			this.serverIdGenerator = 0;
 			this.registry.bind(COORD_NAME, this);
@@ -159,14 +161,19 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public Serializable jvnLockRead(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
+		this.log("Lock Read of "+joi);
 		JvnObject obj = this.objectMap.get(joi);
-		if (this.lockMap.containsKey(obj)) {
+		
+		if (this.lockMap.get(obj) != LockState.NL) {
 			// object is already locked
-			
+			this.log("Object is already locked by another server");
+			this.lockedServerOwner.get(joi).jvnInvalidateReader(joi);
 		}
 		this.lockMap.put(joi, LockState.R);
+		this.lockedServerOwner.put(joi, js);
+		this.log("Object is now locked in R");
 		
-		return this.objectMap.get(joi);
+		return obj.jvnGetSharedObject();
 	}
 
 	/**
@@ -180,7 +187,9 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public Serializable jvnLockWrite(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
 		// to be completed
-		return this.objectMap.get(joi);
+		this.lockedServerOwner.put(joi, js);
+		this.lockMap.put(joi, LockState.W);
+		return this.objectMap.get(joi).jvnGetSharedObject();
 	}
 
 	/**
