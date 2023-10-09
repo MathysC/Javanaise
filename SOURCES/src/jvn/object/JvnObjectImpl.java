@@ -31,6 +31,8 @@ public class JvnObjectImpl implements Remote, JvnObject {
     public void jvnLockRead() throws JvnException {
     	switch (this.state) {
     		case W:
+    		case WC:
+    		case RC:
     			this.state = LockState.R;
     			break;
     		default:
@@ -46,8 +48,10 @@ public class JvnObjectImpl implements Remote, JvnObject {
     public void jvnLockWrite() throws JvnException {
     	switch (this.state) {
     		case W:
+    		case WC:
     			break;
     		case R:
+    		case RC:
     			this.state = LockState.W;
     			break;
     		default:

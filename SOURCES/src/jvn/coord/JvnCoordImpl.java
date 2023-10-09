@@ -135,7 +135,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		this.objectMap.put(id, jo);
 		this.lockMap.put(id, LockState.NL);
 
-
 	}
 
 	/**
@@ -164,11 +163,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		this.log("Lock Read of "+joi);
 		JvnObject obj = this.objectMap.get(joi);
 		
-		if (this.lockMap.get(obj) != LockState.NL) {
-			// object is already locked
-			this.log("Object is already locked by another server");
-			this.lockedServerOwner.get(joi).jvnInvalidateReader(joi);
-		}
+		this.invalidateLocks(joi);
+		
 		this.lockMap.put(joi, LockState.R);
 		this.lockedServerOwner.put(joi, js);
 		this.log("Object is now locked in R");
@@ -186,10 +182,34 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public Serializable jvnLockWrite(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
-		// to be completed
+		this.log("Lock Write of "+joi);
+		JvnObject obj = this.objectMap.get(joi);
+		
+		this.invalidateLocks(joi);
+		
 		this.lockedServerOwner.put(joi, js);
 		this.lockMap.put(joi, LockState.W);
-		return this.objectMap.get(joi).jvnGetSharedObject();
+		return obj.jvnGetSharedObject();
+	}
+	
+	private void invalidateLocks(int joi) throws RemoteException, JvnException {
+		LockState currentLock = this.lockMap.get(joi);
+		JvnRemoteServer owner = this.lockedServerOwner.get(joi);
+		// check if object is currently locked
+		switch (currentLock) {
+			case NL:
+				break;
+			case R:
+			case RC:
+				owner.jvnInvalidateReader(joi);
+				break;
+			case W:
+			case WC:
+				owner.jvnInvalidateWriter(joi);
+				break;
+			default:
+				throw new JvnException("Error: State is not instanciated yet");
+		}
 	}
 
 	/**
