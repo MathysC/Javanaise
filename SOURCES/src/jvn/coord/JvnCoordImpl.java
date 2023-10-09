@@ -159,7 +159,13 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public Serializable jvnLockRead(int joi, JvnRemoteServer js)
 			throws java.rmi.RemoteException, JvnException {
-		// TODO to be completed
+		JvnObject obj = this.objectMap.get(joi);
+		if (this.lockMap.containsKey(obj)) {
+			// object is already locked
+			
+		}
+		this.lockMap.put(joi, LockState.R);
+		
 		return this.objectMap.get(joi);
 	}
 

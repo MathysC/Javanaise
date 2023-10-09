@@ -27,25 +27,26 @@ public class JvnObjectImpl implements Remote, JvnObject {
         this.state = LockState.NL;
     }
     
-    public JvnObjectImpl(int id, Serializable shared) {
-        this.id = id;
-        this.sharedObject = shared;
-        this.server = server;
-    }
     @Override
     public void jvnLockRead() throws JvnException {
-    	this.server.jvnLockRead(id);
-    	this.state = LockState.R;
+    	if (this.state != LockState.R) {
+    		this.jvnSetSharedObject(this.server.jvnLockRead(id));	
+        	this.state = LockState.R;
+    	}
+    	
     }
 
     @Override
     public void jvnLockWrite() throws JvnException {
-    	this.server.jvnLockWrite(id);
-    	this.state = LockState.W;
+    	if (this.state != LockState.W) {
+    		this.jvnSetSharedObject(this.server.jvnLockWrite(id));
+        	this.state = LockState.W;
+    	}
     }
 
     @Override
     public void jvnUnLock() throws JvnException {
+    	
     }
 
     @Override
