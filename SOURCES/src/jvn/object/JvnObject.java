@@ -10,6 +10,7 @@ package jvn.object;
 import java.io.*;
 
 import jvn.server.JvnLocalServer;
+import jvn.server.JvnServerImpl;
 import jvn.utils.JvnException;
 
 /**
@@ -90,5 +91,6 @@ public interface JvnObject extends Serializable {
 	public Serializable jvnInvalidateWriterForReader()
 			throws jvn.utils.JvnException;
 
-	void jvnSetServer(JvnLocalServer server);
+	public void jvnSetServer(JvnLocalServer jvnServerImpl)
+			throws jvn.utils.JvnException;
 }

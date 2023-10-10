@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.rmi.Remote;
 
 import jvn.server.JvnLocalServer;
+import jvn.server.JvnRemoteServer;
 import jvn.server.JvnServerImpl;
 import jvn.utils.JvnException;
 import jvn.utils.LockState;
@@ -28,50 +29,113 @@ public class JvnObjectImpl implements Remote, JvnObject {
     }
     
     @Override
-    public void jvnLockRead() throws JvnException {
+    public synchronized void jvnLockRead() throws JvnException {
     	switch (this.state) {
-    		case W:
-    		case WC:
     		case RC:
+    			this.rcReached = false;
     			this.state = LockState.R;
     			break;
+    		case R:	
+    			break;
+    		case WC:
+        		this.jvnSetSharedObject(this.server.jvnLockRead(id));
+        		this.state = LockState.RWC;
+    		case RWC:
+            	break;
     		default:
-    			Serializable sr = this.server.jvnLockRead(id);
-        		this.jvnSetSharedObject(sr);
+        		this.jvnSetSharedObject(this.server.jvnLockRead(id));
             	this.state = LockState.R;
             	break;
     	}
+    	System.out.println("Locked in read");
     	
     }
 
     @Override
-    public void jvnLockWrite() throws JvnException {
+    public synchronized void jvnLockWrite() throws JvnException {
     	switch (this.state) {
-    		case W:
     		case WC:
-    			break;
-    		case R:
-    		case RC:
+    			this.wcReached = false;
+    		case W:
     			this.state = LockState.W;
     			break;
     		default:
     			this.jvnSetSharedObject(this.server.jvnLockWrite(id));
             	this.state = LockState.W;
     	}
+    	System.out.println("Locked in write");	
     }
 
+    private boolean rcReached = false;
+    private boolean wcReached = false;
+    
     @Override
-    public void jvnUnLock() throws JvnException {
+    public synchronized void jvnUnLock() throws JvnException {
     	switch (this.state) {
     	case R:
     		this.state = LockState.RC;
+    		this.rcReached = true;
     		break;
     	case W:
     		this.state = LockState.WC;
+    		this.wcReached = true;
     		break;
     	}
+    	notify();
+    	System.out.println("Unlocked");
     }
 
+    @Override
+    public synchronized void jvnInvalidateReader() throws JvnException {
+    	switch (this.state) {
+	    	case RC:
+	    		break;
+	    	case R:
+	    		while (!this.rcReached) {
+	    			try {
+						wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+	    		}
+	    		this.rcReached = false;
+	    		break;
+			default:
+				// Anything else shouldn't be possible
+				throw new JvnException("Error : Impossible state in ObjectImpl");
+    	}
+    	this.state = LockState.NL;
+    }
+
+    @Override
+    public synchronized Serializable jvnInvalidateWriter() throws JvnException {
+    	switch (this.state) {
+    	case WC:
+    		break;
+    	case W:
+    		while (!this.wcReached) {
+    			try {
+					wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+    		}
+    		this.wcReached = false;
+    		break;
+		default:
+			// Anything else shouldn't be possible
+			throw new JvnException("Error : Impossible state in ObjectImpl");
+    	}
+    	this.state = LockState.NL;
+    	return this.jvnGetSharedObject(); // return the object to be able to update the value
+    }
+
+    @Override
+    public synchronized Serializable jvnInvalidateWriterForReader() throws JvnException {
+        return null;
+    }
+    
+    /* -- Getters / Setters -- */
     @Override
     public int jvnGetObjectId() throws JvnException {
         return this.id;
@@ -86,49 +150,10 @@ public class JvnObjectImpl implements Remote, JvnObject {
         this.sharedObject = obj;
     }
     
-    public void jvnSetServer(JvnLocalServer server) {
+    @Override
+    public void jvnSetServer(JvnLocalServer server) throws JvnException{
     	this.server = server;
     }
 
-    @Override
-    public void jvnInvalidateReader() throws JvnException {
-    	switch (this.state) {
-	    	case RC:		
-	    		break;
-	    	case R:
-	    		// wait for RC
-	    		break;
-			default:
-				// Anything else shouldn't be possible
-				throw new JvnException("Error : Impossible state in ObjectImpl");
-    	}
-    	this.state = LockState.NL;
-    	// RC -> NL
-    	// R -> wait (RC)
-    	// W -> wait (WC)
-    	// WC -> NL 
-    	// WRC -> wait (RC)
-    }
-
-    @Override
-    public Serializable jvnInvalidateWriter() throws JvnException {
-    	switch (this.state) {
-    	case WC:
-    		break;
-    	case W:
-    		// wait for WC
-    		break;
-		default:
-			// Anything else shouldn't be possible
-			throw new JvnException("Error : Impossible state in ObjectImpl");
-    	}
-    	this.state = LockState.NL;
-    	return this.jvnGetSharedObject(); // return the object to be able to update the value
-    }
-
-    @Override
-    public Serializable jvnInvalidateWriterForReader() throws JvnException {
-        return null;
-    }
 
 }

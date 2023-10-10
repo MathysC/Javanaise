@@ -148,10 +148,8 @@ public class JvnServerImpl
 	 **/
 	public Serializable jvnLockRead(int joi)
 			throws JvnException {
-		Serializable o; 
 		try {
-			o = this.coordinator.jvnLockRead(joi, this);
-			return o;
+			return this.coordinator.jvnLockRead(joi, this);
 		} catch (RemoteException | JvnException e) {
 			e.printStackTrace();
 			return null;
@@ -167,10 +165,8 @@ public class JvnServerImpl
 	 **/
 	public Serializable jvnLockWrite(int joi)
 			throws JvnException {
-		Serializable o;
 		try {
-			o = this.coordinator.jvnLockWrite(joi, this);
-			return o;
+			return this.coordinator.jvnLockWrite(joi, this);
 		} catch (RemoteException | JvnException e) {
 			e.printStackTrace();
 			return null;
