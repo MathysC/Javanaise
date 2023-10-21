@@ -181,4 +181,17 @@ public class JvnObjectImpl implements Remote, JvnObject {
         m = m == null ? "An error occurs while waiting" : m;
         System.err.println("[" + JvnObjectImpl.class.getName() + "][" + func + "]: " + m);
     }
+
+	@Override
+	public void read() throws JvnException {
+		// Shenanigans like locking and unlocking would go there, also communication with the coordinator i think
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void write() throws JvnException {
+		// TODO Auto-generated method stub
+		
+	}
 }
