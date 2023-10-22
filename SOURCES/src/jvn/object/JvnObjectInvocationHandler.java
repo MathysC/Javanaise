@@ -5,6 +5,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import jvn.annotations.Operation;
+
 public class JvnObjectInvocationHandler implements InvocationHandler, Serializable{
 	private static final long serialVersionUID = 1L;
 	JvnObject object;
@@ -23,28 +25,28 @@ public class JvnObjectInvocationHandler implements InvocationHandler, Serializab
 	}
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable, IllegalArgumentException {
-		// We have a read method, and a write method, that redirects to the right function
-		// I guess we do lock read and lock write here
 		Object result;
-		switch (method.getName()) {
-			case "read":
-				object.jvnLockRead();
-				// method points to a method linked to the JvnObject if i don't do that
-				Method readMethod = object.jvnGetSharedObject().getClass().getMethod(method.getName(), method.getParameterTypes());
-				result = readMethod.invoke(object.jvnGetSharedObject(), args);
-				object.jvnUnLock();
-				break;
-			case "write":
-				object.jvnLockWrite();
-				Method writeMethod = object.jvnGetSharedObject().getClass().getMethod(method.getName(), method.getParameterTypes());
-				result = writeMethod.invoke(object.jvnGetSharedObject(), args);
-				object.jvnUnLock();
-				break;
-			default:
-				result = method.invoke(object, args);
-				break;
+		// If the annotation is present, we are in a read / write situation
+		if (method.isAnnotationPresent(Operation.class)) {
+			switch (method.getAnnotation(Operation.class).name()) {
+				case "read":
+					object.jvnLockRead();
+					break;
+				case "write":
+					object.jvnLockWrite();
+					break;
+				default:
+					throw new IllegalArgumentException("Error: Only 'read' and 'write' are valid Operation names");
+			}
+			// This is necessary because else the method points to a JvnObject instead of a sentence.
+			// comparing with classmates, it seems this is due to an issue on our side somewhere else, but it currently works
+			// and we will solve it if we have the time.
+			Method objMethod = object.jvnGetSharedObject().getClass().getMethod(method.getName(), method.getParameterTypes());
+			result = objMethod.invoke(object.jvnGetSharedObject(), args);
+			object.jvnUnLock();
+		} else {
+			result = method.invoke(object, args);
 		}
-		
 		return result;
 	}
 

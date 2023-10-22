@@ -32,7 +32,7 @@ public interface JvnLocalServer {
 	 * @throws JvnException
 	 * @throws RemoteException
 	 **/
-	public JvnObject jvnCreateObject(Serializable jos) throws JvnException, RemoteException;
+	public Object jvnCreateObject(Serializable jos) throws JvnException, RemoteException;
 
 	/**
 	 * Associate a symbolic name with a JVN object
