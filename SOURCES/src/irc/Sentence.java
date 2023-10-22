@@ -15,7 +15,7 @@ import jvn.annotations.Operation;
 /**
  * Sentence is a Serializable object that will be used as a shareable object by Javanaise.
  */
-public class Sentence implements Serializable {
+public class Sentence implements Serializable, ISentence {
 	
 	/**
 	 * Serialization.
@@ -31,7 +31,6 @@ public class Sentence implements Serializable {
 	 * Setter of data.
 	 * @param text The new value of data.
 	 */
-	@Operation(name="write")
 	public void write(String text) {
 		data = text;
 	}
@@ -40,7 +39,6 @@ public class Sentence implements Serializable {
 	 * Getter of data.
 	 * @return the current value of data.
 	 */
-	@Operation(name="read")
 	public String read() {
 		return data;
 	}

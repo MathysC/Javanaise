@@ -117,14 +117,16 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 
 
 	@Override
-	public JvnObject jvnCreateObject(Serializable jos) throws JvnException, RemoteException {
+	public Object jvnCreateObject(Serializable jos) throws JvnException, RemoteException {
 		try {
 			int joi = this.coordinator.jvnGetObjectId();
 			JvnObjectImpl jo = new JvnObjectImpl(jos, joi, this);
 			
 			// use the proxy instead of the real object
-			JvnObject proxy = (JvnObject) JvnObjectInvocationHandler.newInstance(jo);
-			this.objects.put(joi, proxy);
+			Object proxy = JvnObjectInvocationHandler.newInstance(jo);
+
+			this.objects.put(joi, jo);
+			jvnRegisterObject("IRC", jo);
 			jo.jvnUnLock();
 			return proxy;
 		} catch (Exception e) {
@@ -143,15 +145,17 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	}
 
 	@Override
-	public JvnObject jvnLookupObject(String jon) throws JvnException, RemoteException {
+	public synchronized Object jvnLookupObject(String jon, Serializable newObj) throws JvnException, RemoteException {
 		JvnObject object = this.coordinator.jvnLookupObject(jon, this);
 		if (object != null) {
 			// change server to be current instead of creator
 			object.jvnSetServer(this);
 			object.resetState();
 			this.objects.put(object.jvnGetObjectId(), object);
+			return JvnObjectInvocationHandler.newInstance(object);
+		} else {
+			return jvnCreateObject(newObj);
 		}
-		return object;
 	}
 
 	@Override
@@ -221,5 +225,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		} else if (!coordinator.equals(other.coordinator))
 			return false;
 		return true;
+	}
+
+	@Override
+	public Object jvnLookupObject(String jon) throws JvnException, RemoteException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

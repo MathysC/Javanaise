@@ -115,7 +115,6 @@ public class JvnObjectImpl implements Remote, JvnObject {
             }
         }
         this.state = State.NL;
-
         return this.sharedObject;
     }
 
@@ -158,7 +157,7 @@ public class JvnObjectImpl implements Remote, JvnObject {
 
     @Override
     public void jvnSetSharedObject(Serializable serializable) {
-        this.sharedObject = serializable;
+        //this.sharedObject = serializable;
     }
 
     @Override
@@ -185,14 +184,16 @@ public class JvnObjectImpl implements Remote, JvnObject {
 
 	@Override
 	public String read() throws JvnException {
-		// TODO Auto-generated method stub
-		return null;
+		// not necessary to fill the method, it's just there
+		// because the proxy needs to know that writing and reading is possible
+		throw new IllegalArgumentException("This method call is not intended.");
 	}
 
 	@Override
 	public void write(String s) throws JvnException {
-		// TODO Auto-generated method stub
-		
+		// not necessary to fill the method, it's just there
+		// because the proxy needs to know that writing and reading is possible
+		throw new IllegalArgumentException("This method call is not intended.");
 	}
 
 }

@@ -5,7 +5,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import irc.ISentence;
 import jvn.annotations.Operation;
+import jvn.utils.JvnException;
 
 public class JvnObjectInvocationHandler implements InvocationHandler, Serializable{
 	private static final long serialVersionUID = 1L;
@@ -15,13 +17,13 @@ public class JvnObjectInvocationHandler implements InvocationHandler, Serializab
 		this.object = obj;
 	}
 	
-	public static Object newInstance(JvnObject obj) {
-		JvnObject ret = (JvnObject) Proxy.newProxyInstance(
-				JvnObject.class.getClassLoader(), 
-				new Class[] {JvnObject.class}, 
+	public static Object newInstance(JvnObject obj) throws JvnException {
+		Object shared = obj.jvnGetSharedObject();
+		return Proxy.newProxyInstance(
+				shared.getClass().getClassLoader(), 
+				shared.getClass().getInterfaces(), 
 				new JvnObjectInvocationHandler(obj)
 		);
-		return ret;
 	}
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable, IllegalArgumentException {
@@ -38,15 +40,12 @@ public class JvnObjectInvocationHandler implements InvocationHandler, Serializab
 				default:
 					throw new IllegalArgumentException("Error: Only 'read' and 'write' are valid Operation names");
 			}
-			// This is necessary because else the method points to a JvnObject instead of a sentence.
-			// comparing with classmates, it seems this is due to an issue on our side somewhere else, but it currently works
-			// and we will solve it if we have the time.
-			Method objMethod = object.jvnGetSharedObject().getClass().getMethod(method.getName(), method.getParameterTypes());
-			result = objMethod.invoke(object.jvnGetSharedObject(), args);
+			result = method.invoke(object.jvnGetSharedObject(), args);
 			object.jvnUnLock();
 		} else {
-			result = method.invoke(object, args);
+			result = method.invoke(object.jvnGetSharedObject(), args);
 		}
+		
 		return result;
 	}
 
