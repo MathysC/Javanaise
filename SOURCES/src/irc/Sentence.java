@@ -10,10 +10,12 @@ package irc;
 
 import java.io.Serializable;
 
+import jvn.annotations.Operation;
+
 /**
  * Sentence is a Serializable object that will be used as a shareable object by Javanaise.
  */
-public class Sentence implements Serializable {
+public class Sentence implements Serializable, ISentence {
 	
 	/**
 	 * Serialization.

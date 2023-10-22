@@ -17,7 +17,8 @@ import jvn.utils.State;
 
 public class JvnObjectImpl implements Remote, JvnObject {
 
-    private int id;
+    private static final long serialVersionUID = 1L;
+	private int id;
     private Serializable sharedObject;
     // needs to be transient else it breaks everything.
     // Because server is not really a server, it's some sort of stub
@@ -114,7 +115,6 @@ public class JvnObjectImpl implements Remote, JvnObject {
             }
         }
         this.state = State.NL;
-
         return this.sharedObject;
     }
 
@@ -157,7 +157,7 @@ public class JvnObjectImpl implements Remote, JvnObject {
 
     @Override
     public void jvnSetSharedObject(Serializable serializable) {
-        this.sharedObject = serializable;
+        //this.sharedObject = serializable;
     }
 
     @Override
@@ -181,4 +181,19 @@ public class JvnObjectImpl implements Remote, JvnObject {
         m = m == null ? "An error occurs while waiting" : m;
         System.err.println("[" + JvnObjectImpl.class.getName() + "][" + func + "]: " + m);
     }
+
+	@Override
+	public String read() throws JvnException {
+		// not necessary to fill the method, it's just there
+		// because the proxy needs to know that writing and reading is possible
+		throw new IllegalArgumentException("This method call is not intended.");
+	}
+
+	@Override
+	public void write(String s) throws JvnException {
+		// not necessary to fill the method, it's just there
+		// because the proxy needs to know that writing and reading is possible
+		throw new IllegalArgumentException("This method call is not intended.");
+	}
+
 }

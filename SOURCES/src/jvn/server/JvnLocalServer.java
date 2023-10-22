@@ -32,7 +32,7 @@ public interface JvnLocalServer {
 	 * @throws JvnException
 	 * @throws RemoteException
 	 **/
-	public JvnObject jvnCreateObject(Serializable jos) throws JvnException, RemoteException;
+	public Object jvnCreateObject(Serializable jos) throws JvnException, RemoteException;
 
 	/**
 	 * Associate a symbolic name with a JVN object
@@ -52,7 +52,7 @@ public interface JvnLocalServer {
 	 * @throws JvnException
 	 * @throws RemoteException
 	 **/
-	public JvnObject jvnLookupObject(String jon) throws JvnException, RemoteException;
+	public Object jvnLookupObject(String jon) throws JvnException, RemoteException;
 
 	/**
 	 * Get a Read lock on a JVN object

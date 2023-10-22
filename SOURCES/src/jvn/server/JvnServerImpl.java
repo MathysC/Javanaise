@@ -22,9 +22,11 @@ import jvn.coord.JvnCoordImpl;
 import jvn.coord.JvnRemoteCoord;
 import jvn.object.JvnObject;
 import jvn.object.JvnObjectImpl;
+import jvn.object.JvnObjectInvocationHandler;
 import jvn.utils.JvnException;
 
 import java.io.*;
+import java.lang.reflect.Proxy;
 
 public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer, JvnRemoteServer {
 
@@ -115,13 +117,18 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 
 
 	@Override
-	public JvnObject jvnCreateObject(Serializable jos) throws JvnException, RemoteException {
+	public Object jvnCreateObject(Serializable jos) throws JvnException, RemoteException {
 		try {
 			int joi = this.coordinator.jvnGetObjectId();
 			JvnObjectImpl jo = new JvnObjectImpl(jos, joi, this);
-			this.objects.put(joi, jo);
+			
+			// use the proxy instead of the real object
+			Object proxy = JvnObjectInvocationHandler.newInstance(jo);
 
-			return jo;
+			this.objects.put(joi, jo);
+			jvnRegisterObject("IRC", jo);
+			jo.jvnUnLock();
+			return proxy;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -138,15 +145,17 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	}
 
 	@Override
-	public JvnObject jvnLookupObject(String jon) throws JvnException, RemoteException {
+	public synchronized Object jvnLookupObject(String jon, Serializable newObj) throws JvnException, RemoteException {
 		JvnObject object = this.coordinator.jvnLookupObject(jon, this);
 		if (object != null) {
 			// change server to be current instead of creator
 			object.jvnSetServer(this);
 			object.resetState();
 			this.objects.put(object.jvnGetObjectId(), object);
+			return JvnObjectInvocationHandler.newInstance(object);
+		} else {
+			return jvnCreateObject(newObj);
 		}
-		return object;
 	}
 
 	@Override
@@ -216,5 +225,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		} else if (!coordinator.equals(other.coordinator))
 			return false;
 		return true;
+	}
+
+	@Override
+	public Object jvnLookupObject(String jon) throws JvnException, RemoteException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
