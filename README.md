@@ -1,81 +1,31 @@
 # Javanaise
-Projet de Système et application répartis
-
-## Architecture
-![image](https://github.com/MathysC/Javanaise/assets/32172257/f2ee5fa3-a2c4-4287-b651-8927088c31dc)
+**A distributed object cache in Java**
 
 ## Setup 
 
-### Dans la console
-`rmiregistry &`
+### Prerequisites:
+- **Java**: Ensure you have Java installed. You can verify this by running the following command:
+  `java -version`
+  
+### Installation Guide:
 
-### Côté Serveur
-```java
-public class Server implements Hello{
+**Clone the Repository**:
+- Open your terminal or command prompt.
+- Navigate to the directory where you want to clone the project.
+- Run the following command to clone the repository:
 
-	public void funcFromStub() throws RemoteException {
-		// Definir la(les) fonction(s) qui est(sont) dans le stub
-	}
+`git clone https://github.com/m2gi-clergetm/Javanaise.git`
 
-	public static void main(String[] args) {
-		try {
-			// Créer le serveur
-			Server server = new Server();
-			// Créer un stub (un portail) pour communiquer avec le serveur depuis
-			// d'autres processus
-			StubClass stub = (StubClass) UnicastRemoteObject.exportObject(server, 0);
-			// Trouve le registre initialisé plus tôt dans la console
-			Registry reg = LocateRegistry.getRegistry();
-			// Lie le stub à un id unique en String pour le retrouver dans les autres
-			// processus
-			reg.bind("Hello", stub);
-			
-			System.out.println("Server ready");
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+- Change your current directory to the project's root directory:
 
-	}
+`cd Javanaise`
 
-}
+### Inside Eclipse (or any other java IDE)
 
-```
-Un **stub** est un *portail* qui permet de communiquer. Le stub est créé par le serveur, puis inséré dans le regitre, afin que d'autres processus puissent le retrouver. Il fonctionne ensuite comme un parchemin de teleportation: tout endroit d'utilisation mennera au même point de départ, ici le serveur. 
+**Run the Application**:
+ - Run the file named `JvnCoordImpl.java` located in `SOUCES/src/jvn/coord/`.
+ - Every time you need to run a new Client, run the file `Irc.java` located in `SOUCES/src/irc/`.
 
-### Côté Client
-```java
-public class Client {
-	public static void main(String[] args) {
-		// Au cas ou le hostname ne serait pas celui par défaut
-		String host = (args.length < 1) ? null : args[0];
-		try {
-			// Trouve le registre lancé dans le terminal
-			Registry reg = LocateRegistry.getRegistry(host);
-			
-			// Dans le registre, recupere le portail vers le serveur
-			Hello stub = (Hello) reg.lookup("Hello");
-			// Execute la fonction du serveur comme si elle etait locale
-			String response = stub.helloWorld();
-			// Process la reponse du serveur. 
-			System.out.println("Response gotten from Client stub : "+response);
-			
-		} catch (Exception exp) {
-			System.err.println("Error in client : \n"+exp);
-		}
-	}
-}
-
-```
-Le client ne fait qu'utiliser ce qui a été déclaré par le serveur pour récuperer les informations, puis procede au traitement de l'information obtenu
-
-### Interface stub
-Interface contenant la liste des fonctions que le serveur doit implementer et que le client va appeler.  Les fonctions doivent throw une RemoteException !
-```java
-public interface Hello extends Remote{
-	String helloWorld() throws RemoteException;
-}
-```
 
 ### Dev Notes
 When we want to send a Sentence (or serializable used by user, type doesn't matter) we send back a sharedObject (obj.jvnGetSharedObject() ) else, if we want to return a JvnObject, we return it. 
