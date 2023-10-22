@@ -182,16 +182,4 @@ public class JvnObjectImpl implements Remote, JvnObject {
         System.err.println("[" + JvnObjectImpl.class.getName() + "][" + func + "]: " + m);
     }
 
-	@Override
-	public void read() throws JvnException {
-		// Shenanigans like locking and unlocking would go there, also communication with the coordinator i think
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void write() throws JvnException {
-		// TODO Auto-generated method stub
-		
-	}
 }

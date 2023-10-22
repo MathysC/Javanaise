@@ -106,15 +106,4 @@ public interface JvnObject extends Serializable {
 	 */
 	public void resetState() throws JvnException;
 	
-	/**
-	 * Proxy class to read
-	 * @throws JvnException
-	 */
-	public void read() throws JvnException;
-	
-	/**
-	 * Proxy class to write
-	 * @throws JvnException
-	 */
-	public void write() throws JvnException;
 }

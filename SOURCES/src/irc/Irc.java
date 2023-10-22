@@ -38,7 +38,7 @@ public class Irc {
 			if (jo == null) {
 				jo = js.jvnCreateObject(new Sentence());
 				// after creation, I have a write lock on the object
-				jo.jvnUnLock();
+				//jo.jvnUnLock();
 				js.jvnRegisterObject("IRC", jo);
 			}
 			// create the graphical part of the Chat application
@@ -104,13 +104,13 @@ class ReadListener implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		try {
 			// lock the object in read mode
-			irc.sentence.jvnLockRead();
+			//irc.sentence.jvnLockRead();
 
 			// invoke the method
-			String s = ((Sentence) (irc.sentence.jvnGetSharedObject())).read();
+			String s = irc.sentence.read();
 
 			// unlock the object
-			irc.sentence.jvnUnLock();
+			//irc.sentence.jvnUnLock();
 
 			// display the read value
 			irc.data.setText(s);
@@ -140,13 +140,13 @@ class WriteListener implements ActionListener {
 			String s = irc.data.getText();
 
 			// lock the object in write mode
-			irc.sentence.jvnLockWrite();
+			//irc.sentence.jvnLockWrite();
 
 			// invoke the method
-			((Sentence) (irc.sentence.jvnGetSharedObject())).write(s);
+			irc.sentence.write(s);
 
 			// unlock the object
-			irc.sentence.jvnUnLock();
+			//irc.sentence.jvnUnLock();
 		} catch (JvnException je) {
 			System.out.println("IRC problem  : " + je.getMessage());
 		}

@@ -22,9 +22,11 @@ import jvn.coord.JvnCoordImpl;
 import jvn.coord.JvnRemoteCoord;
 import jvn.object.JvnObject;
 import jvn.object.JvnObjectImpl;
+import jvn.object.JvnObjectInvocationHandler;
 import jvn.utils.JvnException;
 
 import java.io.*;
+import java.lang.reflect.Proxy;
 
 public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer, JvnRemoteServer {
 
@@ -119,9 +121,17 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		try {
 			int joi = this.coordinator.jvnGetObjectId();
 			JvnObjectImpl jo = new JvnObjectImpl(jos, joi, this);
-			this.objects.put(joi, jo);
+			
+			// use the proxy instead of the real object
+			JvnObjectInvocationHandler handler = new JvnObjectInvocationHandler(jo);
+			JvnObject obj = (JvnObject) Proxy.newProxyInstance(
+					JvnObject.class.getClassLoader(), 
+					new Class[] {JvnObject.class}, 
+					handler
+			);
+			this.objects.put(joi, obj);
 
-			return jo;
+			return obj;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
