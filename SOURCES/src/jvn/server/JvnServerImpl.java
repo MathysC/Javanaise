@@ -123,15 +123,10 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			JvnObjectImpl jo = new JvnObjectImpl(jos, joi, this);
 			
 			// use the proxy instead of the real object
-			JvnObjectInvocationHandler handler = new JvnObjectInvocationHandler(jo);
-			JvnObject obj = (JvnObject) Proxy.newProxyInstance(
-					JvnObject.class.getClassLoader(), 
-					new Class[] {JvnObject.class}, 
-					handler
-			);
-			this.objects.put(joi, obj);
-
-			return obj;
+			JvnObject proxy = (JvnObject) JvnObjectInvocationHandler.newInstance(jo);
+			this.objects.put(joi, proxy);
+			jo.jvnUnLock();
+			return proxy;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

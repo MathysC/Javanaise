@@ -17,7 +17,8 @@ import jvn.utils.State;
 
 public class JvnObjectImpl implements Remote, JvnObject {
 
-    private int id;
+    private static final long serialVersionUID = 1L;
+	private int id;
     private Serializable sharedObject;
     // needs to be transient else it breaks everything.
     // Because server is not really a server, it's some sort of stub
@@ -181,5 +182,17 @@ public class JvnObjectImpl implements Remote, JvnObject {
         m = m == null ? "An error occurs while waiting" : m;
         System.err.println("[" + JvnObjectImpl.class.getName() + "][" + func + "]: " + m);
     }
+
+	@Override
+	public String read() throws JvnException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void write(String s) throws JvnException {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

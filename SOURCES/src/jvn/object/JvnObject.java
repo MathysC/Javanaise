@@ -106,4 +106,7 @@ public interface JvnObject extends Serializable {
 	 */
 	public void resetState() throws JvnException;
 	
+	public String read() throws JvnException;
+	public void write(String s) throws JvnException;
+	
 }
