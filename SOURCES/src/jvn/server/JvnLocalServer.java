@@ -52,7 +52,7 @@ public interface JvnLocalServer {
 	 * @throws JvnException
 	 * @throws RemoteException
 	 **/
-	public Object jvnLookupObject(String jon) throws JvnException, RemoteException;
+	public Object jvnLookupObject(String jon, Serializable newObj) throws JvnException, RemoteException;
 
 	/**
 	 * Get a Read lock on a JVN object

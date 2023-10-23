@@ -89,24 +89,27 @@ public interface JvnObject extends Serializable {
 	 * 
 	 * @param jvnServerImpl the new server.
 	 * @throws JvnException
-	 */	
+	 */
 	public void jvnSetServer(JvnLocalServer jvnServerImpl) throws JvnException;
 
 	/* Personal add */
-	
+
 	/**
 	 * Setter of the Serializable object.
+	 * 
 	 * @param serializable The updated shared object.
 	 */
 	public void jvnSetSharedObject(Serializable serializable);
 
 	/**
 	 * Reset the State of a JvnObject to its default value: NL.
+	 * 
 	 * @throws JvnException
 	 */
 	public void resetState() throws JvnException;
-	
+
 	public String read() throws JvnException;
+
 	public void write(String s) throws JvnException;
-	
+
 }

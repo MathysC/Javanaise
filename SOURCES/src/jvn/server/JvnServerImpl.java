@@ -26,7 +26,6 @@ import jvn.object.JvnObjectInvocationHandler;
 import jvn.utils.JvnException;
 
 import java.io.*;
-import java.lang.reflect.Proxy;
 
 public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer, JvnRemoteServer {
 
@@ -58,7 +57,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	/**
 	 * Registry used by the project
 	 */
-	Registry reg;
+	private transient Registry reg;
 
 	/**
 	 * Map of object used by this server.
@@ -79,7 +78,15 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		super();
 		System.setProperty(JvnCoordImpl.PROPERTY, JvnCoordImpl.COORD_HOST);
 		this.reg = LocateRegistry.getRegistry(2001);
-		this.coordinator = (JvnRemoteCoord) reg.lookup(JvnCoordImpl.COORD_NAME);
+		boolean cont = true;
+		while (cont) {
+			try {
+				cont = false;
+				this.coordinator = (JvnRemoteCoord) reg.lookup(JvnCoordImpl.COORD_NAME);
+			} catch (Exception exp){
+				cont = true;
+			}
+		}
 		this.id = this.coordinator.jvnGetObjectId();
 		this.name = "srv_" + this.id;
 		reg.bind(name, this);
@@ -91,7 +98,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * 
 	 * @throws JvnException
 	 **/
-	public static JvnServerImpl jvnGetServer() {
+	public synchronized static JvnServerImpl jvnGetServer() {
 		if (js == null) {
 			try {
 				js = new JvnServerImpl();
@@ -104,7 +111,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	}
 
 	@Override
-	public void jvnTerminate() throws JvnException, RemoteException {
+	public synchronized void jvnTerminate() throws JvnException, RemoteException {
 		try {
 			this.coordinator.jvnTerminate(this);
 			this.reg.unbind(this.name);
@@ -115,13 +122,12 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		}
 	}
 
-
 	@Override
-	public Object jvnCreateObject(Serializable jos) throws JvnException, RemoteException {
+	public synchronized Object jvnCreateObject(Serializable jos) throws JvnException, RemoteException {
 		try {
 			int joi = this.coordinator.jvnGetObjectId();
 			JvnObjectImpl jo = new JvnObjectImpl(jos, joi, this);
-			
+
 			// use the proxy instead of the real object
 			Object proxy = JvnObjectInvocationHandler.newInstance(jo);
 
@@ -136,7 +142,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	}
 
 	@Override
-	public void jvnRegisterObject(String jon, JvnObject jo) throws JvnException, RemoteException {
+	public synchronized void jvnRegisterObject(String jon, JvnObject jo) throws JvnException, RemoteException {
 		try {
 			this.coordinator.jvnRegisterObject(jon, jo, this);
 		} catch (Exception e) {
@@ -159,7 +165,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	}
 
 	@Override
-	public Serializable jvnLockRead(int joi) throws JvnException {
+	public synchronized Serializable jvnLockRead(int joi) throws JvnException {
 		Serializable serializable = this.objects.get(joi).jvnGetSharedObject();
 		try {
 			serializable = this.coordinator.jvnLockRead(joi, this);
@@ -172,7 +178,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	}
 
 	@Override
-	public Serializable jvnLockWrite(int joi) throws JvnException {
+	public synchronized Serializable jvnLockWrite(int joi) throws JvnException {
 		Serializable serializable = this.objects.get(joi).jvnGetSharedObject();
 		try {
 			serializable = this.coordinator.jvnLockWrite(joi, this);
@@ -185,17 +191,17 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	}
 
 	@Override
-	public void jvnInvalidateReader(int joi) throws RemoteException, JvnException {
+	public synchronized void jvnInvalidateReader(int joi) throws RemoteException, JvnException {
 		this.objects.get(joi).jvnInvalidateReader();
 	}
 
 	@Override
-	public Serializable jvnInvalidateWriter(int joi) throws RemoteException, JvnException {
+	public synchronized Serializable jvnInvalidateWriter(int joi) throws RemoteException, JvnException {
 		return this.objects.get(joi).jvnInvalidateWriter();
 	}
 
 	@Override
-	public Serializable jvnInvalidateWriterForReader(int joi) throws RemoteException, JvnException {
+	public synchronized Serializable jvnInvalidateWriterForReader(int joi) throws RemoteException, JvnException {
 		return this.objects.get(joi).jvnInvalidateWriterForReader();
 	}
 
@@ -225,11 +231,5 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		} else if (!coordinator.equals(other.coordinator))
 			return false;
 		return true;
-	}
-
-	@Override
-	public Object jvnLookupObject(String jon) throws JvnException, RemoteException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

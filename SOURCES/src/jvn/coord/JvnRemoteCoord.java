@@ -84,13 +84,4 @@ public interface JvnRemoteCoord extends Remote {
 	 * @throws JvnException
 	 **/
 	public void jvnTerminate(JvnRemoteServer js) throws RemoteException, JvnException;
-
-	/**
-	 * Write a log message in the Console
-	 * 
-	 * @param m The message to log
-	 * @throws RemoteException
-	 * @throws JvnException
-	 */
-	public void log(String m) throws RemoteException, JvnException;
 }
