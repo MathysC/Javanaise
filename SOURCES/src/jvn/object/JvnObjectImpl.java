@@ -157,7 +157,7 @@ public class JvnObjectImpl implements Remote, JvnObject {
 
     @Override
     public void jvnSetSharedObject(Serializable serializable) {
-        //this.sharedObject = serializable;
+        this.sharedObject = serializable;
     }
 
     @Override
