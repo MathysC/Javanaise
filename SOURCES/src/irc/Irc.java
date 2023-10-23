@@ -11,7 +11,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.rmi.RemoteException;
 
-import jvn.object.JvnObject;
 import jvn.server.JvnServerImpl;
 import jvn.utils.JvnException;
 
@@ -33,7 +32,7 @@ public class Irc {
 
 			// look up the IRC object in the JVN server
 			// if not found, create it, and register it in the JVN server
-			ISentence jo = (ISentence)js.jvnLookupObject("IRC", new Sentence());
+			ISentence jo = (ISentence) js.jvnLookupObject("IRC", new Sentence());
 			// create the graphical part of the Chat application
 			new Irc(jo);
 
@@ -99,11 +98,9 @@ class ReadListener implements ActionListener {
 		// invoke the method
 		String s = irc.sentence.read();
 
-		// unlock the object
-		//irc.sentence.jvnUnLock();
-
-		// display the read value
+		// unlock the object && display the read value
 		irc.data.setText(s);
+
 		irc.text.append(s + "\n");
 	}
 }
@@ -125,10 +122,7 @@ class WriteListener implements ActionListener {
 		// get the value to be written from the buffer
 		String s = irc.data.getText();
 
-		// lock the object in write mode
-		//irc.sentence.jvnLockWrite();
-
-		// invoke the method
+		// lock the object in write mode && invoke the method
 		irc.sentence.write(s);
 	}
 }

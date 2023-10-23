@@ -51,7 +51,4 @@ public interface JvnRemoteServer extends Remote {
 	 * @throws JvnException
 	 **/
 	public Serializable jvnInvalidateWriterForReader(int joi) throws RemoteException, JvnException;
-
-	Object jvnLookupObject(String jon, Serializable newObj) throws JvnException, RemoteException;
-
 }

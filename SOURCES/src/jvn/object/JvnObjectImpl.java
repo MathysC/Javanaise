@@ -17,15 +17,35 @@ import jvn.utils.State;
 
 public class JvnObjectImpl implements Remote, JvnObject {
 
+    /**
+     * Serialization.
+     */
     private static final long serialVersionUID = 1L;
-	private int id;
+
+    /**
+     * Identification number of the Object.
+     */
+    private int id;
+
+    /**
+     * The shared object contained by the JvnObject.
+     */
     private Serializable sharedObject;
-    // needs to be transient else it breaks everything.
-    // Because server is not really a server, it's some sort of stub
-    // so when this is serialized, it converts the stub to something else
-    // and tries to convert back the something else to a jvnlocaleserver
-    // but it never was that, it was a strange stub, so it bugs.
+
+    /**
+     * The server linked to the Object.
+     * 
+     * @implNote Needs to be transient else it breaks everything.
+     *           Because server is not really a server, it's some sort of stub
+     *           so when this is serialized, it converts the stub to something else
+     *           and tries to convert back the something else to a jvnlocaleserver
+     *           but it never was that, it was a strange stub, so it bugs.
+     */
     private transient JvnLocalServer server;
+
+    /**
+     * The state of the object.
+     */
     private State state;
 
     public JvnObjectImpl(Serializable shared, int id, JvnLocalServer server) {
@@ -91,7 +111,7 @@ public class JvnObjectImpl implements Remote, JvnObject {
 
     @Override
     public synchronized void jvnInvalidateReader() throws JvnException {
-        while (this.state == State.R) {
+        while (this.state != State.RC) {
             try {
                 this.wait();
             } catch (InterruptedException ex) {
@@ -105,7 +125,7 @@ public class JvnObjectImpl implements Remote, JvnObject {
 
     @Override
     public synchronized Serializable jvnInvalidateWriter() throws JvnException {
-        while (this.state == State.W) {
+        while (this.state != State.WC) {
             try {
                 this.wait();
             } catch (InterruptedException ex) {
@@ -165,11 +185,10 @@ public class JvnObjectImpl implements Remote, JvnObject {
         this.server = server;
     }
 
-	@Override
-	public void resetState() throws JvnException {
-		this.state = State.NL;
-		
-	}
+    @Override
+    public void resetState() throws JvnException {
+        this.state = State.NL;
+    }
 
     /**
      * Write an error message in the Console.
@@ -182,18 +201,18 @@ public class JvnObjectImpl implements Remote, JvnObject {
         System.err.println("[" + JvnObjectImpl.class.getName() + "][" + func + "]: " + m);
     }
 
-	@Override
-	public String read() throws JvnException {
-		// not necessary to fill the method, it's just there
-		// because the proxy needs to know that writing and reading is possible
-		throw new IllegalArgumentException("This method call is not intended.");
-	}
+    @Override
+    public String read() throws JvnException {
+        // not necessary to fill the method, it's just there
+        // because the proxy needs to know that writing and reading is possible
+        throw new IllegalArgumentException("This method call is not intended.");
+    }
 
-	@Override
-	public void write(String s) throws JvnException {
-		// not necessary to fill the method, it's just there
-		// because the proxy needs to know that writing and reading is possible
-		throw new IllegalArgumentException("This method call is not intended.");
-	}
+    @Override
+    public void write(String s) throws JvnException {
+        // not necessary to fill the method, it's just there
+        // because the proxy needs to know that writing and reading is possible
+        throw new IllegalArgumentException("This method call is not intended.");
+    }
 
 }

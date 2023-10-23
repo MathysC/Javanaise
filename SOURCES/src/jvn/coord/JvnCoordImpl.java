@@ -97,18 +97,18 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @throws RemoteException
 	 * @throws NotBoundException
 	 */
-	public boolean isReady() throws RemoteException, NotBoundException {
+	public synchronized boolean isReady() throws RemoteException, NotBoundException {
 		Registry registry = LocateRegistry.getRegistry(COORD_PORT);
 		return registry.lookup(COORD_NAME) != null;
 	}
 
 	@Override
-	public int jvnGetObjectId() throws RemoteException, jvn.utils.JvnException {
+	public synchronized int jvnGetObjectId() throws RemoteException, jvn.utils.JvnException {
 		return ++this.idGenerator;
 	}
 
 	@Override
-	public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js) throws RemoteException, JvnException {
+	public synchronized void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js) throws RemoteException, JvnException {
 		int id = jo.jvnGetObjectId();
 
 		this.nameMap.put(jon, id);
@@ -118,12 +118,12 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	}
 
 	@Override
-	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws RemoteException, JvnException {
+	public synchronized JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws RemoteException, JvnException {
 		return this.objectMap.get(this.nameMap.get(jon));
 	}
 
 	@Override
-	public Serializable jvnLockRead(int joi, JvnRemoteServer js) throws RemoteException, JvnException {
+	public synchronized Serializable jvnLockRead(int joi, JvnRemoteServer js) throws RemoteException, JvnException {
 		JvnObject jo = this.objectMap.get(joi);
 		Serializable serializable = jo.jvnGetSharedObject();
 		JvnRemoteServer writer = this.writerMap.get(joi);
@@ -147,7 +147,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	}
 
 	@Override
-	public Serializable jvnLockWrite(int joi, JvnRemoteServer js) throws RemoteException, JvnException {
+	public synchronized Serializable jvnLockWrite(int joi, JvnRemoteServer js) throws RemoteException, JvnException {
 		JvnObject jo = this.objectMap.get(joi);
 		Serializable serializable = jo.jvnGetSharedObject();
 		JvnRemoteServer writer = this.writerMap.get(joi);
@@ -172,7 +172,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	}
 
 	@Override
-	public void jvnTerminate(JvnRemoteServer js) throws RemoteException, JvnException {
+	public synchronized void jvnTerminate(JvnRemoteServer js) throws RemoteException, JvnException {
 		for (var entry : this.writerMap.entrySet()) {
 			JvnRemoteServer writer = entry.getValue();
 			if (writer != null && (writer.equals(js))) {
@@ -185,11 +185,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		}
 
 		this.readerMap.forEach((id, readers) -> readers.remove(js));
-	}
-
-	@Override
-	public void log(String m) {
-		System.out.println("[LOG] - " + m);
 	}
 
 	@Override

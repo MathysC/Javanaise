@@ -5,26 +5,25 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import irc.ISentence;
 import jvn.annotations.Operation;
 import jvn.utils.JvnException;
 
-public class JvnObjectInvocationHandler implements InvocationHandler, Serializable{
+public class JvnObjectInvocationHandler implements InvocationHandler, Serializable {
 	private static final long serialVersionUID = 1L;
 	JvnObject object;
-	
+
 	public JvnObjectInvocationHandler(JvnObject obj) {
 		this.object = obj;
 	}
-	
+
 	public static Object newInstance(JvnObject obj) throws JvnException {
 		Object shared = obj.jvnGetSharedObject();
 		return Proxy.newProxyInstance(
-				shared.getClass().getClassLoader(), 
-				shared.getClass().getInterfaces(), 
-				new JvnObjectInvocationHandler(obj)
-		);
+				shared.getClass().getClassLoader(),
+				shared.getClass().getInterfaces(),
+				new JvnObjectInvocationHandler(obj));
 	}
+
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable, IllegalArgumentException {
 		Object result;
@@ -45,7 +44,7 @@ public class JvnObjectInvocationHandler implements InvocationHandler, Serializab
 		} else {
 			result = method.invoke(object.jvnGetSharedObject(), args);
 		}
-		
+
 		return result;
 	}
 

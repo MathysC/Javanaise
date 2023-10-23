@@ -8,19 +8,20 @@
 
 package irc;
 
-import java.io.Serializable;
-
-import jvn.annotations.Operation;
-
 /**
- * Sentence is a Serializable object that will be used as a shareable object by Javanaise.
+ * Sentence is a Serializable object that will be used as a shareable object by
+ * Javanaise.
  */
-public class Sentence implements Serializable, ISentence {
-	
+public class Sentence implements ISentence {
+
 	/**
 	 * Serialization.
 	 */
 	private static final long serialVersionUID = 1L;
+
+	/*
+	 * The value contained by the Sentence.
+	 */
 	String data;
 
 	public Sentence() {
@@ -29,6 +30,7 @@ public class Sentence implements Serializable, ISentence {
 
 	/**
 	 * Setter of data.
+	 * 
 	 * @param text The new value of data.
 	 */
 	public void write(String text) {
@@ -37,6 +39,7 @@ public class Sentence implements Serializable, ISentence {
 
 	/**
 	 * Getter of data.
+	 * 
 	 * @return the current value of data.
 	 */
 	public String read() {

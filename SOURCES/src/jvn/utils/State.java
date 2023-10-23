@@ -19,6 +19,6 @@ public enum State {
 	R, // Read lock taken
 	W, // Write lock taken
 	RWC, // Write lock cached & Read taken
-	RC, // Read lock cached (not currently used)
-	WC, // Write lock cached (not currently used)
+	RC, // Read lock cached
+	WC, // Write lock cached
 }
